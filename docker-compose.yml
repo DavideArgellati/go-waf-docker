@@ -40,12 +40,15 @@ services:
     build:
       context: $CONTEXT
       dockerfile: ./$CURRENT_FOLDER/nginx_test_node/Dockerfile
+      args:
+        NGINX_APP_FOLDER: ./$CURRENT_FOLDER/nginx_test_node #relative to context
     ports:
       - "8090:80"
     environment:
       ENV: dev
+      NGINX_TEST_DOMAIN: $NGINX_TEST_DOMAIN
     volumes:
-      - ./nginx_test_node/public:/var/www/www.goaway-test.co/public
+      - ./nginx_test_node/public:/var/www/public
       - ./nginx_test_node/logs:/var/log/nginx
     links:
       - goapp
