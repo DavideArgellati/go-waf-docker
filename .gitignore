@@ -1,0 +1,4 @@
+mysql/data/*
+redis/data/*
+**/**/sites-available/sitesconfig
+logs/*

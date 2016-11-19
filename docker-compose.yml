@@ -1,0 +1,51 @@
+version: '2' #https://docs.docker.com/compose/compose-file/#/version-2
+services:
+  goapp:
+    build:
+      context: $CONTEXT
+      dockerfile: ./$CURRENT_FOLDER/go/Dockerfile #relative to context
+      args:
+        APP_FOLDER: ./$GO_APP_FOLDER #relative to context
+    volumes:
+      - ../$GO_APP_FOLDER:/go/src/$GO_APP_FOLDER #volumes are relative to current file
+      - ./nginx_test_node/logs:/var/log/nginx_test_node
+    ports:
+      - 8080:8080
+    environment:
+      PORT: 8080 #can be used in the go app
+      ENV: dev
+    depends_on:
+      - mysql
+    links:
+      - mysql
+      - redis 
+  redis:
+    image: redis
+    volumes:
+     - ./redis/data:/data
+    ports:
+      - "6379:6379"
+  mysql:
+    image: percona
+    ports:
+      - "3307:3306"
+    volumes:
+      - ./mysql/logs:/var/log/mysql
+      - ./mysql/data:/var/lib/mysql
+      - ./mysql/docker-entrypoint-initdb.d/:/docker-entrypoint-initdb.d/
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      ENV: dev
+  nginx_test_node:
+    build:
+      context: $CONTEXT
+      dockerfile: ./$CURRENT_FOLDER/nginx_test_node/Dockerfile
+    ports:
+      - "8090:80"
+    environment:
+      ENV: dev
+    volumes:
+      - ./nginx_test_node/public:/var/www/www.goaway-test.co/public
+      - ./nginx_test_node/logs:/var/log/nginx
+    links:
+      - goapp
